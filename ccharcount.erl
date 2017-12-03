@@ -15,7 +15,7 @@ load(F, NumSplits) ->
 	
 	StartTime = erlang:monotonic_time(),
 	
-	PManagerPID = spawn(?MODULE, processManager, [[],length(Sl)-1, self()]),
+	PManagerPID = spawn(?MODULE, processManager, [[],length(Sl)-1, self()]), % create process to manage*
 	io:fwrite("Spawning processManager with PID:~p~n",[PManagerPID]),
 	processSpawn(Sl, PManagerPID),
 	
@@ -24,7 +24,7 @@ load(F, NumSplits) ->
 		RunTime = erlang:convert_time_unit(erlang:monotonic_time() - StartTime, native, millisecond)/1000,
 		io:fwrite("~nResult:~n~p~nRun Time:~p seconds~n",[JoinedResult, RunTime]);
 		_Other -> {error, unknown}
-   end.
+	end.
 
 %% 
 processManager(JoinedResult, -1, MainPID) -> MainPID ! {self(), JoinedResult}; % when finished return JoinedResult to main process for result display

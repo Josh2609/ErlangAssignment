@@ -1,4 +1,4 @@
--module (assignment1).
+-module (pi).
 -export ([pi/0, truncPi/0]).
 
 pi() -> 

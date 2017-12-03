@@ -8,10 +8,8 @@ load(F) ->
 	io:fwrite("Loaded and lowered"),
 	StartTime = erlang:monotonic_time(),
 	Result=go(Sl),
-	EndTime = erlang:monotonic_time(),
-	RunTime = erlang:convert_time_unit(EndTime - StartTime, native, millisecond)/1000,
+	RunTime = erlang:convert_time_unit(erlang:monotonic_time(), - StartTime, native, millisecond)/1000,
 	io:fwrite("~nResult:~n~p~nRun Time:~p seconds~n",[Result, RunTime]).
-
 
 count(Ch, [],N) -> N;
 count(Ch, [H|T],N) ->

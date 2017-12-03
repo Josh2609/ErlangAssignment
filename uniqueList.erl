@@ -1,5 +1,5 @@
--module (assignment2a).
--export ([main/0, main/1]]).
+-module (uniqueList).
+-export ([main/0, main/1]).
 
 main() ->
 	io:fwrite("No list provided. Using default list [2,5,3,6,3,2,7,8,5,6].~n"),
