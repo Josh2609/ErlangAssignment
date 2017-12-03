@@ -1,12 +1,12 @@
+% Josh Corps, 130012977
 -module (ccharcount).
--export ([main/1, main/2, load/2, count/3, go/1, join/2, split/2, processManager/3, processSpawn/2, process/2]).
+-export ([load/0, load/1, load/2, count/3, go/1, join/2, split/2, processManager/3, processSpawn/2, process/2]).
 
-main(Filename) -> load(Filename, erlang:system_info(schedulers_online)*4).
-main(Filename, NumSplits) -> load(Filename, NumSplits).
-
-% Load in the file, lower all letter, split, and send it to process.
-load(F, NumSplits) ->
-{ok, Bin} = file:read_file(F),
+% Load in the file, lower all letters, split, and send it to processes.
+load() -> load("war.txt", erlang:system_info(schedulers_online)). % defaults to war.txt
+load(Filename) -> load(Filename, erlang:system_info(schedulers_online)). % gets the number of cores available to erlang and uses that for numSplits
+load(F, NumSplits) when is_integer(NumSplits) ->
+	{ok, Bin} = file:read_file(F),
 	List = binary_to_list(Bin),
 	Length = round(length(List)/NumSplits),
 	Ls = string:to_lower(List),
@@ -15,10 +15,11 @@ load(F, NumSplits) ->
 	
 	StartTime = erlang:monotonic_time(),
 	
-	PManagerPID = spawn(?MODULE, processManager, [[],length(Sl)-1, self()]), % create process to manage*
-	io:fwrite("Spawning processManager with PID:~p~n",[PManagerPID]),
-	processSpawn(Sl, PManagerPID),
+	PManagerPID = spawn(?MODULE, processManager, [[],length(Sl)-1, self()]), % create process to manage and join the other process results
+	io:fwrite("Spawning processManager with PID:~p~n", [PManagerPID]),
+	processSpawn(Sl, PManagerPID), % begin spawning processes for split file
 	
+	% receive and print the complete result list
 	receive
 		{From, JoinedResult} -> 
 		RunTime = erlang:convert_time_unit(erlang:monotonic_time() - StartTime, native, millisecond)/1000,
@@ -27,6 +28,7 @@ load(F, NumSplits) ->
 	end.
 
 %% 
+% manages the prcesses and joins the results together for displaying at the end
 processManager(JoinedResult, -1, MainPID) -> MainPID ! {self(), JoinedResult}; % when finished return JoinedResult to main process for result display
 processManager(JoinedResult, N, MainPID) ->
 	receive
@@ -36,11 +38,13 @@ processManager(JoinedResult, N, MainPID) ->
        _Other -> {error, unknown}
    end.
 
+% spawns new processes with part of split file
 processSpawn([], _) -> io:format("All Processes Spawned.~n", []);
 processSpawn([H|T], PManagerPID) ->
-	io:fwrite("Spawning new process with PID:~p~n",[spawn(?MODULE, process, [H, PManagerPID])]),
+	io:fwrite("Spawning new process with PID:~p~n",[spawn(?MODULE, process, [H, PManagerPID])]), % spawn a new process and display it's pid
 	processSpawn(T, PManagerPID).
 
+% performs the processing on the file and returns its result to the processManager 
 process(L, PManagerPID) ->
 	ProcessResult = go(L),
 	PManagerPID ! {self(), ProcessResult}.

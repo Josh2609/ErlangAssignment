@@ -1,6 +1,8 @@
+% Josh Corps, 130012977
 -module (charcount).
--export ([load/1,count/3,go/1]).
+-export ([load/0, load/1,count/3,go/1]).
 
+load() -> load("war.txt").
 load(F) ->
 	{ok, List} = file:read_file(F),
 	L=binary_to_list(List),
@@ -8,7 +10,7 @@ load(F) ->
 	io:fwrite("Loaded and lowered"),
 	StartTime = erlang:monotonic_time(),
 	Result=go(Sl),
-	RunTime = erlang:convert_time_unit(erlang:monotonic_time(), - StartTime, native, millisecond)/1000,
+	RunTime = erlang:convert_time_unit(erlang:monotonic_time() - StartTime, native, millisecond)/1000,
 	io:fwrite("~nResult:~n~p~nRun Time:~p seconds~n",[Result, RunTime]).
 
 count(Ch, [],N) -> N;

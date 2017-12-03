@@ -1,3 +1,4 @@
+% Josh Corps, 130012977
 -module (uniqueFile).
 -export ([main/0, main/1, loadFile/1]).
 
@@ -18,7 +19,7 @@ sortUnique([Pivot|T]) ->
 	sortUnique([X || X <- T, X > Pivot]);
 sortUnique([])->[].
 
-% loads the file into a list, converts to lowercase, and tokes/removes characters.
+% loads the file into a list, converts to lowercase, and tokens/removes characters.
 loadFile(FileName) ->
 	{ok, FileContents} = file:read_file(FileName),
 	LoadedList = binary_to_list(FileContents),
